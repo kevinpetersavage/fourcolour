@@ -162,7 +162,7 @@ class Configuration:
         return True
         
     def is_d_reducable(self):
-        if not self.create_signed_paths_for_non_extending():
+        if not list(self.create_signed_paths_for_non_extending()):
             return True
         else:
             raise Exception("We don't yet look at s when checking signed paths so this might not be correct")
