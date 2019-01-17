@@ -1,0 +1,4 @@
+networkx>=0.1
+nose>=0.1
+sniffer>=0.1
+sympy>=0.1
