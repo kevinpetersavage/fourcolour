@@ -1,6 +1,7 @@
 # generate rules
-# generate parts = (K, a, b)
-# write branching that separates part into two parts
+# generate trivial part = (K, a, b)
+# write function to apply rules to prove > N case and determine N
+# write branching that separates part into multiple parts
 # apply rules to get bound on Np(W) for all W that match part
 # output resulting list of graphs that may or may not reduce, output as a set?
 
