@@ -23,8 +23,6 @@ def test_generate_trivial_part():
         assert_equals(part.node[node_index][interval].lower, 5)
         assert_equals(part.node[node_index][interval].upper, i.inf)
 
-    assert_equals(part.node[0][gamma], 10)  # calculated as (6 - 5) * 10
-
 
 def test_check_rules_where_complete_match():
     part = generate_trivial_part(5)
@@ -53,4 +51,25 @@ def test_apply_rule():
         rule.node[node_index][interval] = i.closed(5, i.inf)
 
     assert_equals(calculate_gamma_change(part, rule), 5)
-    assert_equals(apply_rule(part, rule).node[0][gamma], 10)  # this is because all the in and out should cancel
+    assert_equals(rule_np_w_contribution(part, rule), 0)  # this is because all the in and out should cancel
+    assert_equals(np_w(part, [rule]), 10)  # this is gamma + sum(rule contributions)
+
+
+def test_branch_part():
+    part = generate_trivial_part(5)
+    rule = nx.complete_graph(3)
+    for node_index in range(0, 2):
+        rule.node[node_index][interval] = i.closed(5, i.inf)
+    rule.node[2][interval] = i.closed(7, i.inf)
+
+    branched = list(branch(part, rule))
+
+    expected_part = generate_trivial_part(5)
+    expected_part.node[2][interval] = i.closed(5, 6)
+    assert_true(graph_in(branched, expected_part))
+
+    for b in branched:
+        print([b.node[ni][interval] for ni in b.node])
+    assert False
+
+
