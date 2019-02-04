@@ -68,8 +68,13 @@ def test_branch_part():
     expected_part.node[2][interval] = i.closed(5, 6)
     assert_true(graph_in(branched, expected_part))
 
-    for b in branched:
-        print([b.node[ni][interval] for ni in b.node])
-    assert False
 
+def test_find_maximum_part_degree():
+    rule = nx.complete_graph(3)
+    rule.node[0][interval] = i.closed(5, 5)
+    rule.node[1][interval] = i.closed(6, 6)
+    rule.node[2][interval] = i.closed(7, i.inf)
 
+    max_degree = find_maximum_part_degree([rule])
+
+    assert_equals(max_degree, 6)

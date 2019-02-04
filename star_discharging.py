@@ -1,15 +1,17 @@
 # Done: generate rules
 # Done: generate trivial part = (K, a, b)
-# write branching that separates part into multiple parts
+# Done: write branching that separates part into multiple parts
 # Done: apply rules to get bound on Np(W) for all W that match part
 # write function to apply rules to prove > N case and determine N
 # output resulting list of graphs that may or may not reduce, output as a set? Count rejected?
 
-# optionally might need to use symmetry, might need to hash the graph or something?
+# Done by chance: optionally might need to use symmetry, might need to hash the graph or something?
 # They did something for symmetry in the robertson paper
 import networkx as nx
 import intervals as i
 from random import randint, choice
+from collections import Counter
+from math import floor
 
 interval = 'interval'
 
@@ -141,4 +143,23 @@ def graph_in(branched, expected_part):
 
 def graph_equals(g1, g2):
     return nx.is_isomorphic(g1, g2, node_match=lambda x, y: x == y)
+
+
+def find_maximum_part_degree(rules: [nx.Graph]):
+    intervals = (rule.node[n][interval] for rule in rules for n in rule.node)
+    values = [v.lower for v in intervals] + [v.upper for v in intervals]
+    max_finite_value = max(v for v in values if v != i.inf)
+
+    degree_pairs = ((d1, d2)
+                    for d1 in range(5, max_finite_value+1)
+                    for d2 in range(5, max_finite_value+1)
+                    for rule in rules
+                    if d1 in rule.node[2][interval] and d2 in rule.node[0][interval]
+                    and not (d1 in rule.node[1][interval] and d2 in rule.node[2][interval]))
+
+    # want to find 10 * (6 - N) + mdp * N = 0
+    # 60 + (mdp - 10)N = 0
+    # N = -60/ (mdp - 10)
+
+    return floor(- 60 / (max(Counter(degree_pairs).values())-10))
 
