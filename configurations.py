@@ -3,6 +3,7 @@ import itertools
 
 colours = ['r','g','y','b']
 
+
 class Configuration:
     def __init__(self, graph, edge_of_inifinte_region, gamma):
         self.graph = graph
