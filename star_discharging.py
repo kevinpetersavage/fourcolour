@@ -2,7 +2,7 @@
 # Done: generate trivial part = (K, a, b)
 # Done: write branching that separates part into multiple parts
 # Done: apply rules to get bound on Np(W) for all W that match part
-# write function to apply rules to prove > N case and determine N
+# Done: write function to apply rules to prove > N case and determine N
 # output resulting list of graphs that may or may not reduce, output as a set? Count rejected?
 
 # Done by chance: optionally might need to use symmetry, might need to hash the graph or something?
@@ -156,10 +156,11 @@ def find_maximum_part_degree(rules: [nx.Graph]):
                     for rule in rules
                     if d1 in rule.node[2][interval] and d2 in rule.node[0][interval]
                     and not (d1 in rule.node[1][interval] and d2 in rule.node[2][interval]))
+    max_score_balance_change = max(Counter(degree_pairs).values())
 
-    # want to find 10 * (6 - N) + mdp * N = 0
-    # 60 + (mdp - 10)N = 0
-    # N = -60/ (mdp - 10)
+    # want to find 10 * (6 - N) + msbc * N = 0
+    # 60 + (msbc - 10)N = 0
+    # N = -60/ (msbc - 10)
 
-    return floor(- 60 / (max(Counter(degree_pairs).values())-10))
+    return floor(- 60 / (max_score_balance_change - 10))
 
