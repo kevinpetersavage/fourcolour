@@ -3,10 +3,9 @@
 # Done: write branching that separates part into multiple parts
 # Done: apply rules to get bound on Np(W) for all W that match part
 # Done: write function to apply rules to prove > N case and determine N
-# output resulting list of graphs that may or may not reduce, output as a set? Count rejected?
 
 # Done by chance: optionally might need to use symmetry, might need to hash the graph or something?
-# They did something for symmetry in the robertson paper
+
 import networkx as nx
 import intervals as i
 from random import randint, choice
@@ -43,8 +42,15 @@ def check_apply_unambiguously(part: nx.Graph, rule: nx.Graph):
 
 
 def check_apply_unambiguously_at_rotation(part: nx.Graph, rule: nx.Graph, rotation: int):
-    return (not rule_applies_some_of_the_time(part, rule, rotation)) or \
-           (not rule_does_not_apply_some_of_the_time(part, rule, rotation))
+    for index in range(0, 3):
+        rule_interval = rule.node[index][interval]
+        part_interval = part.node[rotate_index(part, rotation, index)][interval]
+        applies_sometimes = not part_interval.intersection(rule_interval).is_empty()
+        doesnt_apply_sometimes = not rule_interval.contains(part_interval)
+        unambiguous = (not applies_sometimes) or (not doesnt_apply_sometimes)
+        if not unambiguous:
+            return False
+    return True
 
 
 def rotate_index(part: nx.Graph, rotation: int, index: int):
@@ -86,7 +92,8 @@ def calculate_gamma_change(part: nx.Graph, rule: nx.Graph):
 
 
 def np_w(part: nx.Graph, rules: [nx.Graph]):
-    return 10 * (6 - part.degree(0)) + sum(rule_np_w_contribution(part, rule) for rule in rules)
+    np_w = 10 * (6 - part.degree(0)) + sum(rule_np_w_contribution(part, rule) for rule in rules)
+    return np_w
 
 
 def branch(part, rule):
@@ -156,7 +163,7 @@ def find_maximum_part_degree(rules: [nx.Graph]):
                     for rule in rules
                     if d1 in rule.node[2][interval] and d2 in rule.node[0][interval]
                     and not (d1 in rule.node[1][interval] and d2 in rule.node[2][interval]))
-    max_score_balance_change = max(Counter(degree_pairs).values())
+    max_score_balance_change = max([0] + list(Counter(degree_pairs).values()))
 
     # want to find 10 * (6 - N) + msbc * N = 0
     # 60 + (msbc - 10)N = 0

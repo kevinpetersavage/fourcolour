@@ -78,3 +78,21 @@ def test_find_maximum_part_degree():
     max_degree = find_maximum_part_degree([rule])
 
     assert_equals(max_degree, 6)
+
+
+def test_case_from_real_life():
+    part = generate_trivial_part(5)
+    part.node[0][interval] = i.closed(5, 5)
+    part.node[1][interval] = i.closed(7, 8)
+    part.node[2][interval] = i.closedopen(9, i.inf)
+    part.node[3][interval] = i.closedopen(9, i.inf)
+    part.node[4][interval] = i.closedopen(9, i.inf)
+    part.node[5][interval] = i.closed(5, 5)
+
+    rule = nx.complete_graph(3)
+    rule.node[0][interval] = i.closed(6, 8)
+    rule.node[1][interval] = i.closedopen(7, i.inf)
+    rule.node[2][interval] = i.closedopen(9, i.inf)
+
+    assert_true(check_apply_unambiguously_at_rotation(part, rule, 0))
+    assert_true(check_apply_unambiguously(part, rule))
