@@ -44,5 +44,23 @@ def test_birkhoff_diamond_generates_ring_colourings():
     assert_equals(len(colourings), 336)
 
 
+def test_kemp_chain_alteration_of_non_extendable_ring_colouring_swaps_colours_or_reverses_one():
+    recolourings = diamond.recolour_using_one_kemp_chain_step(colouring=['r', 'y', 'g', 'b', 'y', 'b'], start=0)
+
+    assert_equals(
+        [['g', 'y', 'r', 'b', 'y', 'b'], ['g', 'y', 'g', 'b', 'y', 'b']],
+        recolourings
+    )
+
+
+def test_kemp_chain_alteration_of_non_extendable_ring_colouring_does_not_generate_invalid_ring_colourings():
+    recolourings = diamond.recolour_using_one_kemp_chain_step(colouring=['r', 'y', 'b', 'g', 'y', 'b'], start=0)
+
+    assert_equals(
+        [],
+        recolourings
+    )
+
+
 def test_birkhoff_is_d_reducable():
     assert_true(diamond.is_reducible())

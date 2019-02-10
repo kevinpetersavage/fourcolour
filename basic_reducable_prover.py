@@ -1,5 +1,5 @@
 import itertools
-
+import copy
 import networkx as nx
 
 
@@ -49,17 +49,7 @@ class Configuration:
 
     def create_ring_colourings(self):
         colourings = itertools.product(colours, repeat=self.ring_size())
-
-        def is_valid(colouring):
-            for i, colour in enumerate(colouring):
-                if colouring[i - 1] == colour:
-                    return False
-            for i in range(1, int(len(colouring)/2)):
-                if colouring[i] == colouring[-i]:
-                    return False  # this puts in some extra edges meaning there are less combinations
-            return True
-
-        return (list(c) for c in colourings if is_valid(c))
+        return (list(c) for c in colourings if self.is_valid_as_ring_colouring(c))
 
     def create_graph_colourings(self):
         graph_colourings = itertools.product(colours, repeat=len(self.graph.nodes()))
@@ -71,6 +61,16 @@ class Configuration:
             for neighbor in graph.neighbors(i+1):
                 if colouring[neighbor] == colour:
                     return False
+        return True
+
+    @staticmethod
+    def is_valid_as_ring_colouring(colouring):
+        for i, colour in enumerate(colouring):
+            if colouring[i - 1] == colour:
+                return False
+        for i in range(1, int(len(colouring) / 2)):
+            if colouring[i] == colouring[-i]:
+                return False  # this puts in some extra edges meaning there are less combinations
         return True
 
     def all_ring_colourings_have_a_completion(self):
@@ -85,6 +85,18 @@ class Configuration:
                     for graph_colouring in graph_colourings)
                 for ring_colouring in ring_colourings
         )
+
+    def recolour_using_one_kemp_chain_step(self, colouring, start):
+        first_new_colouring = copy.copy(colouring)
+        first_new_colouring[start] = colouring[start+2]
+        first_new_colouring[start + 2] = colouring[start]
+        second_new_colouring = copy.copy(colouring)
+        second_new_colouring[start] = colouring[start+2]
+        new_colourings = [first_new_colouring, second_new_colouring]
+        if all(self.is_valid_as_ring_colouring(new_colouring) for new_colouring in new_colourings):
+            return new_colourings
+        else:
+            return []
 
     def is_reducible(self):
         return self.all_ring_colourings_have_a_completion()
