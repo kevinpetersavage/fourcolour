@@ -1,6 +1,7 @@
 import itertools
 
 import networkx as nx
+from math import ceil
 
 
 colours = ['r', 'g', 'y', 'b']
@@ -48,43 +49,47 @@ class Configuration:
         return lst[n:] + lst[:n]
 
     def create_ring_colourings(self):
-        colourings = itertools.product(colours, repeat=self.ring_size())
+        #  assumes that the ring is flattened
+        ring_size = self.ring_size()
+        print(ring_size)
+        half_size = ceil(ring_size / 2) + 1
+        half_colourings = itertools.product(colours, repeat=half_size)
+        half_colouring_lists = [list(half_colouring) for half_colouring in half_colourings]
+        colourings = ((half_colouring + half_colouring[::-1][1:])[:ring_size]
+                      for half_colouring in half_colouring_lists)
 
         def is_valid(colouring):
             for i, colour in enumerate(colouring):
                 if colouring[i - 1] == colour:
                     return False
-            for i in range(1, int(len(colouring)/2)):
-                if colouring[i] == colouring[-i]:
-                    return False  # this puts in some extra edges meaning there are less combinations
             return True
 
-        return (list(c) for c in colourings if is_valid(c))
+        return (c for c in colourings if is_valid(c))
 
     def create_graph_colourings(self):
         graph_colourings = itertools.product(colours, repeat=len(self.graph.nodes()))
-        return (list(colouring) for colouring in graph_colourings if self.is_valid(colouring, self.graph))
+        return (list(colouring) for colouring in graph_colourings if self.colouring_is_valid(colouring, self.graph))
 
     @staticmethod
-    def is_valid(colouring, graph):
+    def colouring_is_valid(colouring, graph):
         for i, colour in enumerate(colouring):
             for neighbor in graph.neighbors(i+1):
-                if colouring[neighbor] == colour:
+                if colouring[neighbor-1] == colour:
                     return False
         return True
 
-    def all_ring_colourings_have_a_completion(self):
+    def ring_colourings_not_having_a_completion(self):
         free_completion = self.create_free_completion()
 
         ring_colourings = list(self.create_ring_colourings())
         graph_colourings = list(self.create_graph_colourings())
 
-        return all(
-                any(
-                    self.is_valid(graph_colouring + ring_colouring, free_completion)
-                    for graph_colouring in graph_colourings)
-                for ring_colouring in ring_colourings
-        )
+        for ring_colouring in ring_colourings:
+            colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, free_completion)
+                             for graph_colouring in graph_colourings)
+            if not colourable:
+                yield ring_colouring
 
     def is_reducible(self):
-        return self.all_ring_colourings_have_a_completion()
+        return not self.ring_colourings_not_having_a_completion()
+

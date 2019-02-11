@@ -39,10 +39,14 @@ def test_birkhoff_diamond_generates_free_completion():
 def test_birkhoff_diamond_generates_ring_colourings():
     colourings = list(diamond.create_ring_colourings())
 
-    assert_true(['b', 'y', 'b', 'r', 'y', 'g'] in colourings)
+    assert_true(['b', 'y', 'g', 'y', 'g', 'y'] in colourings)
     assert_true(['r', 'y', 'r', 'y', 'b', 'r'] not in colourings)
-    assert_equals(len(colourings), 336)
+    assert_equals(len(colourings), 108)
 
 
-def test_birkhoff_is_d_reducable():
+def test_birkhoff_colours():
+    assert_false(list(diamond.ring_colourings_not_having_a_completion()))
+
+
+def test_birkhoff_is_reducable():
     assert_true(diamond.is_reducible())

@@ -1,33 +1,37 @@
 from star_discharging import *
-from configurations import *
+from basic_reducable_prover import *
 import intervals as i
 from itertools import product
 
 
 def generate_proof_randomly():
     rules = []
-    last_counted = 0
+    last_counted_avoidable = 0
+    last_counted_reduced = 0
 
     while True:
         print('not proved with', len(rules), 'rules')
-        print('last_counted is', last_counted)
+        print('last_counted is', last_counted_avoidable, last_counted_reduced)
         rules.append(generate_random_triangular_rule(9))
         maximum_part_degree = find_maximum_part_degree(rules)
         print('maximum degree was', maximum_part_degree)
-        counted = check_rules_prove_theorem(rules, maximum_part_degree)
-        if maximum_part_degree > 20 or counted < last_counted:
-            rules = rules[:-1]
+        count_avoidable, count_reduced = check_rules_prove_theorem(rules, maximum_part_degree)
+        if maximum_part_degree > 20 or count_avoidable + count_reduced < last_counted_avoidable + last_counted_reduced:
+            rules = rules[:int(len(rules)/4)]
 
-        last_counted = max(counted, last_counted)
+        last_counted_avoidable = max(count_avoidable, last_counted_avoidable)
+        last_counted_reduced = max(count_reduced, last_counted_reduced)
 
 
 def check_rules_prove_theorem(rules, maximum_part_degree):
     parts_to_check = generate_parts_to_check(maximum_part_degree, rules)
+    count_reduced = 0
     count_avoidable = 0
     for part in parts_to_check:
         if np_w(part, rules) > 0:
             if not check_part_reduces(part):
-                return count_avoidable
+                return count_avoidable, count_reduced
+            count_reduced += 1
         else:
             count_avoidable += 1
 
@@ -71,7 +75,7 @@ def check_part_reduces(part):
     gammas = list(create_gammas(part))
     print('checking part reduces with', len(gammas), 'gammas')
 
-    result = all(Configuration(part, list(range(1, part.degree(0) + 1)), gamma).is_d_reducable() for gamma in gammas)
+    result = all(Configuration(part, list(range(1, part.degree(0) + 1)), gamma).is_reducible() for gamma in gammas)
     print('checked reduction', result)
     return result
 

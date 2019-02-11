@@ -63,7 +63,7 @@ def test_birkhoff_diamond_generates_signed_paths():
 def test_birkhoff_diamond_generates_no_signed_paths_for_non_extending():
     signed = list(diamond.create_signed_paths_for_non_extending())
     
-    # I think this imght be right! but I didn't have to check s functions to get here
+    # I think this might be right! but I didn't have to check s functions to get here
     assert_false(signed) 
 
 
