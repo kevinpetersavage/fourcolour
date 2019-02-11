@@ -78,7 +78,7 @@ class Configuration:
         graph_colourings = list(self.create_graph_colourings())
 
         for ring_colouring in ring_colourings:
-            colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, free_completion)
+            colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, self.free_completion)
                              for graph_colouring in graph_colourings)
             if not colourable:
                 yield ring_colouring
