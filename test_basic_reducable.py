@@ -44,8 +44,8 @@ def test_birkhoff_diamond_generates_ring_colourings():
     assert_equals(len(colourings), 108)
 
 
-def test_birkhoff_colours():
-    assert_false(list(diamond.ring_colourings_not_having_a_completion()))
+def test_some_colouring_do_not_complete_for_the_birkhoff_diamond():
+    assert_true(list(diamond.ring_colourings_not_having_a_completion()))
 
 
 def test_kemp_chain_alteration_of_non_extendable_ring_colouring_swaps_colours_or_reverses_one():

@@ -12,6 +12,7 @@ class Configuration:
         self.graph = graph
         self.edge_of_infinite_region = edge_of_infinite_region
         self.gamma = gamma
+        self.free_completion = self.create_free_completion()
 
     def ring_size(self):
         nodes = [v for v in self.graph.nodes() if v in self.edge_of_infinite_region]
@@ -73,8 +74,6 @@ class Configuration:
         return True
 
     def ring_colourings_not_having_a_completion(self):
-        free_completion = self.create_free_completion()
-
         ring_colourings = list(self.create_ring_colourings())
         graph_colourings = list(self.create_graph_colourings())
 
@@ -102,6 +101,12 @@ class Configuration:
             return new_colourings
         else:
             return []
+
+    def ring_colourings_not_having_completion_after_recolouring(self):
+        for colouring in self.ring_colourings_not_having_a_completion():
+            for start in range(0, len(colouring) - 3):
+                recolourings = self.recolour_using_one_kemp_chain_step(colouring, start)
+                self.ring_colourings_not_having_a_completion()
 
     def is_reducible(self):
         return not self.ring_colourings_not_having_a_completion()
