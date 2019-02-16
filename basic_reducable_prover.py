@@ -52,8 +52,7 @@ class Configuration:
     def create_ring_colourings(self):
         #  assumes that the ring is flattened
         ring_size = self.ring_size()
-        print(ring_size)
-        half_size = ceil(ring_size / 2) + 1
+        half_size = int(ceil(ring_size / 2) + 1)
         half_colourings = itertools.product(colours, repeat=half_size)
         half_colouring_lists = [list(half_colouring) for half_colouring in half_colourings]
         colourings = ((half_colouring + half_colouring[::-1][1:])[:ring_size]
@@ -76,7 +75,9 @@ class Configuration:
     def ring_colourings_not_having_a_completion(self):
         ring_colourings = list(self.create_ring_colourings())
         graph_colourings = list(self.create_graph_colourings())
+        return self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings)
 
+    def ring_colourings_not_having_a_completion_using(self, ring_colourings, graph_colourings):
         for ring_colouring in ring_colourings:
             colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, self.free_completion)
                              for graph_colouring in graph_colourings)
@@ -98,16 +99,26 @@ class Configuration:
         second_new_colouring[start] = colouring[start+2]
         new_colourings = [first_new_colouring, second_new_colouring]
         if all(self.is_valid_as_ring_colouring(new_colouring) for new_colouring in new_colourings):
+            print(colouring, '->', new_colourings)
             return new_colourings
         else:
             return []
 
     def ring_colourings_not_having_completion_after_recolouring(self):
-        for colouring in self.ring_colourings_not_having_a_completion():
-            for start in range(0, len(colouring) - 3):
-                recolourings = self.recolour_using_one_kemp_chain_step(colouring, start)
-                self.ring_colourings_not_having_a_completion()
+        ring_colourings = list(self.create_ring_colourings())
+        graph_colourings = list(self.create_graph_colourings())
+        for colouring in self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings):
+            if not self.ring_colouring_completes_after_recolouring(colouring, graph_colourings):
+                yield colouring
+
+    def ring_colouring_completes_after_recolouring(self, colouring, graph_colourings):
+        for start in range(0, len(colouring) - 3):
+            recolourings = self.recolour_using_one_kemp_chain_step(colouring, start)
+            if recolourings and not list(
+                    self.ring_colourings_not_having_a_completion_using(recolourings, graph_colourings)):
+                return True
+        return False
 
     def is_reducible(self):
-        return not self.ring_colourings_not_having_a_completion()
+        return not list(self.ring_colourings_not_having_completion_after_recolouring())
 
