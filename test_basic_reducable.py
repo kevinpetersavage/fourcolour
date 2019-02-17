@@ -39,17 +39,19 @@ def test_birkhoff_diamond_generates_free_completion():
 def test_birkhoff_diamond_generates_ring_colourings():
     colourings = list(diamond.create_ring_colourings())
 
-    assert_true(['b', 'y', 'g', 'y', 'g', 'y'] in colourings)
+    assert_true(['b', 'g', 'y', 'r', 'g', 'y'] in colourings)
     assert_true(['r', 'y', 'r', 'y', 'b', 'r'] not in colourings)
-    assert_equals(len(colourings), 108)
+    assert_equals(len(colourings), 192)
 
 
 def test_birkhoff_colours():
-    assert_false(list(diamond.ring_colourings_not_having_a_completion()))
+    result = list(diamond.ring_colourings_not_having_a_completion())
+    assert_true(result)
+    assert_false(['r', 'g', 'r', 'g', 'r', 'g'] in result)
 
 
 def test_kemp_chain_alteration_of_non_extendable_ring_colouring_swaps_colours_or_reverses_one():
-    recolourings = diamond.recolour_using_one_kemp_chain_step(colouring=['r', 'y', 'g', 'b', 'y', 'b'], start=0)
+    recolourings = diamond.recolour_using_one_kemp_chain_step(colouring=['r', 'y', 'g', 'y', 'b', 'y'], start=0)
 
     assert_equals(
         [['g', 'y', 'r', 'b', 'y', 'b'], ['g', 'y', 'g', 'b', 'y', 'b']],

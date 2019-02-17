@@ -1,8 +1,8 @@
-import itertools
 import copy
-import networkx as nx
-from math import ceil
+import itertools
+from math import floor
 
+import networkx as nx
 
 colours = ['r', 'g', 'y', 'b']
 
@@ -51,14 +51,9 @@ class Configuration:
     def create_ring_colourings(self):
         #  assumes that the ring is flattened
         ring_size = self.ring_size()
-        print(ring_size)
-        half_size = ceil(ring_size / 2) + 1
-        half_colourings = itertools.product(colours, repeat=half_size)
-        half_colouring_lists = [list(half_colouring) for half_colouring in half_colourings]
-        colourings = ((half_colouring + half_colouring[::-1][1:])[:ring_size]
-                      for half_colouring in half_colouring_lists)
-
-        return (list(c) for c in colourings if self.is_valid_as_ring_colouring(c))
+        colourings = itertools.product(colours, repeat=ring_size)
+        colouring_lists = (list(colouring) for colouring in colourings)
+        return (c for c in colouring_lists if self.is_valid_as_ring_colouring(c))
 
     def create_graph_colourings(self):
         graph_colourings = itertools.product(colours, repeat=len(self.graph.nodes()))
@@ -88,6 +83,10 @@ class Configuration:
     def is_valid_as_ring_colouring(colouring):
         for i, colour in enumerate(colouring):
             if colouring[i - 1] == colour:
+                return False
+        #  puts in some extra edges to stop it just being two colour repeats
+        for i in range(0, len(colouring), 2):
+            if colouring[i] == colouring[i - 2]:
                 return False
         return True
 
