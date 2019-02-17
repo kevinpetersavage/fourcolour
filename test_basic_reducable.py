@@ -50,10 +50,10 @@ def test_some_colouring_do_not_complete_for_the_birkhoff_diamond():
 
 def test_recolour():
     colour_from_wilson = ['g', 'r', 'b', 'r', 'b', 'r']
-    assert_equals(
-        [['g', 'r', 'b', 'r', 'g', 'r'], ['g', 'r', 'b', 'y', 'b', 'r'], ['g', 'r', 'b', 'r', 'b', 'y']],
-        diamond.recolour(colour_from_wilson)
-    )
+    recolourings = list(diamond.recolour(colour_from_wilson))
+    assert_true(['g', 'r', 'b', 'r', 'g', 'r'] in recolourings)
+    assert_true(['g', 'r', 'b', 'y', 'b', 'r'] in recolourings)
+    assert_true(['g', 'r', 'b', 'r', 'b', 'y'] in recolourings)
 
 
 def test_birkhoff_is_reducable():

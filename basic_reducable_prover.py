@@ -85,15 +85,37 @@ class Configuration:
         for i, colour in enumerate(colouring):
             if colouring[i - 1] == colour:
                 return False
-        #  puts in some extra edges to stop it just being two colour repeats
-        for i in range(0, len(colouring), 2):
-            if colouring[i] == colouring[i - 2]:
-                return False
         return True
 
     def recolour(self, colouring):
-        pass
+        colour_pairings = set([tuple(sorted([a, b])) for a in colours for b in colours if a != b])
+        for colour_pairing in colour_pairings:
+            indexes = [i for i, c in enumerate(colouring) if c in colour_pairing]
+            power_set_of_indexes = self.powerset(indexes)
+            for set_of_indexes in power_set_of_indexes:
+                if set_of_indexes:
+                    yield [self.map_colour(colour, colour_pairing, set_of_indexes, i) for i, colour in enumerate(colouring)]
+
+    @staticmethod
+    def powerset(indexes):
+        return itertools.chain.from_iterable(itertools.combinations(indexes, r) for r in range(len(indexes) + 1))
+
+    @staticmethod
+    def map_colour(colour, pairing, indexes, i):
+        if i in indexes and colour in pairing:
+            index = pairing.index(colour)
+            return pairing[index - 1]
+        else:
+            return colour
 
     def is_reducible(self):
-        return not list(self.ring_colourings_not_having_a_completion())
+        ring_colourings = list(self.create_ring_colourings())
+        graph_colourings = list(self.create_graph_colourings())
+        un_completable = list(self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings))
+        recolourings = [recoloured for colouring in un_completable for recoloured in self.recolour(colouring)]
+
+        still_uncompleteable = list(self.ring_colourings_not_having_a_completion_using(recolourings, graph_colourings))
+
+        print(still_uncompleteable)
+        return not still_uncompleteable
 
