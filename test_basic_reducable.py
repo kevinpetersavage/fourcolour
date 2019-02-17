@@ -28,13 +28,13 @@ def test_birkhoff_diamond_generates_ring():
 def test_birkhoff_diamond_generates_free_completion():
     completion = diamond.create_free_completion()
     assert_equals(set(completion.nodes()), set(range(1, 11)))
-    
+
     for node in diamond.graph.nodes():
         assert_equals(completion.degree[node], diamond.gamma(node))
-        
+
     for node in diamond.create_ring().nodes():
         assert_true(completion.degree[node] in [3, 4])
-        
+
 
 def test_birkhoff_diamond_generates_ring_colourings():
     colourings = list(diamond.create_ring_colourings())
@@ -44,27 +44,15 @@ def test_birkhoff_diamond_generates_ring_colourings():
     assert_equals(len(colourings), 192)
 
 
-def test_birkhoff_colours():
-    result = list(diamond.ring_colourings_not_having_a_completion())
-    assert_true(result)
-    assert_false(['r', 'g', 'r', 'g', 'r', 'g'] in result)
+def test_some_colouring_do_not_complete_for_the_birkhoff_diamond():
+    assert_true(list(diamond.ring_colourings_not_having_a_completion()))
 
 
-def test_kemp_chain_alteration_of_non_extendable_ring_colouring_swaps_colours_or_reverses_one():
-    recolourings = diamond.recolour_using_one_kemp_chain_step(colouring=['r', 'y', 'g', 'y', 'b', 'y'], start=0)
-
+def test_recolour():
+    colour_from_wilson = ['g', 'r', 'b', 'r', 'b', 'r']
     assert_equals(
-        [['g', 'y', 'r', 'b', 'y', 'b'], ['g', 'y', 'g', 'b', 'y', 'b']],
-        recolourings
-    )
-
-
-def test_kemp_chain_alteration_of_non_extendable_ring_colouring_does_not_generate_invalid_ring_colourings():
-    recolourings = diamond.recolour_using_one_kemp_chain_step(colouring=['r', 'y', 'b', 'g', 'y', 'b'], start=0)
-
-    assert_equals(
-        [],
-        recolourings
+        [['g', 'r', 'b', 'r', 'g', 'r'], ['g', 'r', 'b', 'y', 'b', 'r'], ['g', 'r', 'b', 'r', 'b', 'y']],
+        diamond.recolour(colour_from_wilson)
     )
 
 

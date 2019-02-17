@@ -12,6 +12,7 @@ class Configuration:
         self.graph = graph
         self.edge_of_infinite_region = edge_of_infinite_region
         self.gamma = gamma
+        self.free_completion = self.create_free_completion()
 
     def ring_size(self):
         nodes = [v for v in self.graph.nodes() if v in self.edge_of_infinite_region]
@@ -68,13 +69,13 @@ class Configuration:
         return True
 
     def ring_colourings_not_having_a_completion(self):
-        free_completion = self.create_free_completion()
-
         ring_colourings = list(self.create_ring_colourings())
         graph_colourings = list(self.create_graph_colourings())
+        return self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings)
 
+    def ring_colourings_not_having_a_completion_using(self, ring_colourings, graph_colourings):
         for ring_colouring in ring_colourings:
-            colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, free_completion)
+            colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, self.free_completion)
                              for graph_colouring in graph_colourings)
             if not colourable:
                 yield ring_colouring
@@ -90,18 +91,9 @@ class Configuration:
                 return False
         return True
 
-    def recolour_using_one_kemp_chain_step(self, colouring, start):
-        first_new_colouring = copy.copy(colouring)
-        first_new_colouring[start] = colouring[start+2]
-        first_new_colouring[start + 2] = colouring[start]
-        second_new_colouring = copy.copy(colouring)
-        second_new_colouring[start] = colouring[start+2]
-        new_colourings = [first_new_colouring, second_new_colouring]
-        if all(self.is_valid_as_ring_colouring(new_colouring) for new_colouring in new_colourings):
-            return new_colourings
-        else:
-            return []
+    def recolour(self, colouring):
+        pass
 
     def is_reducible(self):
-        return not self.ring_colourings_not_having_a_completion()
+        return not list(self.ring_colourings_not_having_a_completion())
 
