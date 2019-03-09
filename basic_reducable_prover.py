@@ -63,8 +63,8 @@ class Configuration:
     @staticmethod
     def colouring_is_valid(colouring, graph):
         for i, colour in enumerate(colouring):
-            for neighbor in graph.neighbors(i+1):
-                if colouring[neighbor-1] == colour:
+            for neighbor in graph.neighbors(i + 1):
+                if colouring[neighbor - 1] == colour:
                     return False
         return True
 
@@ -73,11 +73,13 @@ class Configuration:
         graph_colourings = list(self.create_graph_colourings())
         return self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings)
 
+    def ring_colouring_has_completion(self, ring_colouring, graph_colourings):
+        return any(self.colouring_is_valid(graph_colouring + ring_colouring, self.free_completion)
+                   for graph_colouring in graph_colourings)
+
     def ring_colourings_not_having_a_completion_using(self, ring_colourings, graph_colourings):
         for ring_colouring in ring_colourings:
-            colourable = any(self.colouring_is_valid(graph_colouring + ring_colouring, self.free_completion)
-                             for graph_colouring in graph_colourings)
-            if not colourable:
+            if not self.ring_colouring_has_completion(ring_colouring, graph_colourings):
                 yield ring_colouring
 
     @staticmethod
@@ -94,7 +96,8 @@ class Configuration:
             power_set_of_indexes = self.powerset(indexes)
             for set_of_indexes in power_set_of_indexes:
                 if set_of_indexes:
-                    yield [self.map_colour(colour, colour_pairing, set_of_indexes, i) for i, colour in enumerate(colouring)]
+                    yield [self.map_colour(colour, colour_pairing, set_of_indexes, i) for i, colour in
+                           enumerate(colouring)]
 
     @staticmethod
     def powerset(indexes):
@@ -118,4 +121,3 @@ class Configuration:
 
         print(still_uncompleteable)
         return not still_uncompleteable
-
