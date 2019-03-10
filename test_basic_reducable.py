@@ -39,13 +39,17 @@ def test_birkhoff_diamond_generates_free_completion():
 def test_birkhoff_diamond_generates_ring_colourings():
     colourings = list(diamond.create_ring_colourings())
 
-    assert_true(['b', 'g', 'y', 'r', 'g', 'y'] in colourings)
-    assert_true(['r', 'y', 'r', 'y', 'b', 'r'] not in colourings)
-    assert_equals(len(colourings), 192)
+    assert_true(('b', 'g', 'y', 'r', 'g', 'y') in colourings)
+    assert_true(('r', 'y', 'r', 'y', 'b', 'r') not in colourings)
+    assert_equals(len(colourings), 732)
 
 
 def test_some_colouring_do_not_complete_for_the_birkhoff_diamond():
-    assert_true(list(diamond.ring_colourings_not_having_a_completion()))
+    graph_colourings = diamond.create_graph_colourings()
+    directly_recolours = (diamond.ring_colouring_has_direct_completion(ring_colouring, graph_colourings)
+                          for ring_colouring in diamond.create_ring_colourings())
+
+    assert_false(all(directly_recolours))
 
 
 def test_recolour():
