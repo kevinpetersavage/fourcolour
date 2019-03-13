@@ -1,6 +1,4 @@
-import copy
 import itertools
-from math import floor
 
 import networkx as nx
 
@@ -89,16 +87,6 @@ class Configuration:
                 return False
         return True
 
-    def recolour(self, colouring):
-        colour_pairings = set([tuple(sorted([a, b])) for a in colours for b in colours if a != b])
-        for colour_pairing in colour_pairings:
-            indexes = [i for i, c in enumerate(colouring) if c in colour_pairing]
-            power_set_of_indexes = self.powerset(indexes)
-            for set_of_indexes in power_set_of_indexes:
-                if set_of_indexes:
-                    yield [self.map_colour(colour, colour_pairing, set_of_indexes, i) for i, colour in
-                           enumerate(colouring)]
-
     def is_completable_after_single_recolour(self, colouring):
         graph_colourings = list(self.create_graph_colourings())
         for i, colour in enumerate(colouring):
@@ -122,14 +110,6 @@ class Configuration:
     @staticmethod
     def powerset(indexes):
         return itertools.chain.from_iterable(itertools.combinations(indexes, r) for r in range(len(indexes) + 1))
-
-    @staticmethod
-    def map_colour(colour, pairing, indexes, i):
-        if i in indexes and colour in pairing:
-            index = pairing.index(colour)
-            return pairing[index - 1]
-        else:
-            return colour
 
     def is_reducible(self):
         ring_colourings = list(self.create_ring_colourings())
