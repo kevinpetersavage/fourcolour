@@ -41,7 +41,7 @@ def test_birkhoff_diamond_generates_ring_colourings():
 
     assert_true(['b', 'g', 'y', 'r', 'g', 'y'] in colourings)
     assert_true(['r', 'y', 'r', 'y', 'b', 'r'] not in colourings)
-    assert_equals(len(colourings), 192)
+    assert_equals(len(colourings), 732)
 
 
 def test_some_colouring_do_not_complete_for_the_birkhoff_diamond():

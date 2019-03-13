@@ -99,6 +99,26 @@ class Configuration:
                     yield [self.map_colour(colour, colour_pairing, set_of_indexes, i) for i, colour in
                            enumerate(colouring)]
 
+    def is_completable_after_single_recolour(self, colouring):
+        graph_colourings = list(self.create_graph_colourings())
+        for i, colour in enumerate(colouring):
+            possible_chains = (chain for chain in self.powerset(range(0, len(colouring)))
+                               if i in chain and len(set(colouring[k] for k in chain)) <= 2)
+
+            if all(self.exists_a_completable_recolouring_for_chain(chain, colour, colouring, graph_colourings)
+                    for chain in possible_chains):
+                return True
+        return False
+
+    def exists_a_completable_recolouring_for_chain(self, chain, colour, colouring, graph_colourings):
+        other_colours_in_chain = list(set(colouring[k] for k in chain if colouring[k] != colour))
+        if not other_colours_in_chain:
+            other_colours_in_chain = [c for c in colours if c != colour]
+        recolourings = ([self.swap(c, colour, other_colour) for c in colouring]
+                        for other_colour in other_colours_in_chain)
+        valid_as_ring_colourings = (r for r in recolourings if self.is_valid_as_ring_colouring(r))
+        any(self.ring_colouring_has_completion(r, graph_colourings) for r in valid_as_ring_colourings)
+
     @staticmethod
     def powerset(indexes):
         return itertools.chain.from_iterable(itertools.combinations(indexes, r) for r in range(len(indexes) + 1))
@@ -114,10 +134,13 @@ class Configuration:
     def is_reducible(self):
         ring_colourings = list(self.create_ring_colourings())
         graph_colourings = list(self.create_graph_colourings())
-        un_completable = list(self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings))
-        recolourings = [recoloured for colouring in un_completable for recoloured in self.recolour(colouring)]
+        un_completables = self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings)
+        return not all(self.is_completable_after_single_recolour(un_completable) for un_completable in un_completables)
 
-        still_uncompleteable = list(self.ring_colourings_not_having_a_completion_using(recolourings, graph_colourings))
-
-        print(still_uncompleteable)
-        return not still_uncompleteable
+    @staticmethod
+    def swap(c, from_colour, to_colour):
+        if c == from_colour:
+            return to_colour
+        if c == to_colour:
+            return from_colour
+        return c
