@@ -12,7 +12,10 @@ def generate_proof_randomly():
     while True:
         print('not proved with', len(rules), 'rules')
         print('last_counted is', last_counted_avoidable, last_counted_reduced)
-        rules.append(generate_random_triangular_rule(9))
+        if len(rules) == 0:
+            rules = [generate_random_triangular_rule(9) for i in range(0, 10)]
+        else:
+            rules.append(generate_random_triangular_rule(9))
         maximum_part_degree = find_maximum_part_degree(rules)
         print('maximum degree was', maximum_part_degree)
         count_avoidable, count_reduced = check_rules_prove_theorem(rules, maximum_part_degree)
@@ -74,6 +77,12 @@ def check_part_reduces(part):
     # one part may describe many Configuration because of multiple gammas
     gammas = list(create_gammas(part))
     print('checking part reduces with', len(gammas), 'gammas')
+
+    nodes = [v for v in part.nodes() if v in list(range(1, part.degree(0) + 1))]
+    sum_of_ring_size = sum(sum(gamma(v) - part.degree(v) - 1 for v in nodes) for gamma in gammas)
+    print('sum of ring size **********', sum_of_ring_size)
+    if sum_of_ring_size > 13:
+        return False
 
     result = all(Configuration(part, list(range(1, part.degree(0) + 1)), gamma).is_reducible() for gamma in gammas)
     print('checked reduction', result)

@@ -4,6 +4,8 @@ import networkx as nx
 
 colours = ['r', 'g', 'y', 'b']
 
+log_count = 0
+
 
 class Configuration:
     def __init__(self, graph, edge_of_infinite_region, gamma):
@@ -11,10 +13,17 @@ class Configuration:
         self.edge_of_infinite_region = edge_of_infinite_region
         self.gamma = gamma
         self.free_completion = self.create_free_completion()
+        print("contructed free completion")
+        self.ring_colourings = list(self.create_ring_colourings())
+        print("contructed ring colourings of size", len(self.ring_colourings))
+        self.graph_colourings = list(self.create_graph_colourings())
+        print("contructed graph colourings", len(self.graph_colourings))
 
     def ring_size(self):
         nodes = [v for v in self.graph.nodes() if v in self.edge_of_infinite_region]
-        return sum(self.gamma(v) - self.graph.degree(v) - 1 for v in nodes)
+        ring_size = sum(self.gamma(v) - self.graph.degree(v) - 1 for v in nodes)
+        print("ring size was", ring_size)
+        return ring_size
 
     def create_ring(self):
         ring_size = self.ring_size()
@@ -48,11 +57,19 @@ class Configuration:
         return lst[n:] + lst[:n]
 
     def create_ring_colourings(self):
-        #  assumes that the ring is flattened
         ring_size = self.ring_size()
-        colourings = itertools.product(colours, repeat=ring_size)
-        colouring_lists = (list(colouring) for colouring in colourings)
-        return (c for c in colouring_lists if self.is_valid_as_ring_colouring(c))
+        colourings = [[c] for c in colours]
+        new_colourings = []
+        for i in range(0, ring_size):
+            for colouring in colourings:
+                for colour in colours:
+                    if colour != colouring[-1]:
+                        new_colouring = colouring.copy()
+                        new_colouring.append(colour)
+                        new_colourings.append(new_colouring)
+            colourings = new_colourings
+            new_colourings = []
+        return [c for c in colourings if self.is_valid_as_ring_colouring(c)]
 
     def create_graph_colourings(self):
         graph_colourings = itertools.product(colours, repeat=len(self.graph.nodes()))
@@ -82,6 +99,10 @@ class Configuration:
 
     @staticmethod
     def is_valid_as_ring_colouring(colouring):
+        global log_count
+        log_count += 1
+        if log_count % 1000000 == 0:
+            print("checking", colouring, log_count)
         for i, colour in enumerate(colouring):
             if colouring[i - 1] == colour:
                 return False
@@ -111,12 +132,6 @@ class Configuration:
     def powerset(indexes):
         return itertools.chain.from_iterable(itertools.combinations(indexes, r) for r in range(len(indexes) + 1))
 
-    def is_reducible(self):
-        ring_colourings = list(self.create_ring_colourings())
-        graph_colourings = list(self.create_graph_colourings())
-        un_completables = self.ring_colourings_not_having_a_completion_using(ring_colourings, graph_colourings)
-        return not all(self.is_completable_after_single_recolour(un_completable) for un_completable in un_completables)
-
     @staticmethod
     def swap(c, from_colour, to_colour):
         if c == from_colour:
@@ -124,3 +139,9 @@ class Configuration:
         if c == to_colour:
             return from_colour
         return c
+
+    def is_reducible(self):
+        un_completables = self.ring_colourings_not_having_a_completion_using(
+            self.ring_colourings, self.graph_colourings
+        )
+        return not all(self.is_completable_after_single_recolour(un_completable) for un_completable in un_completables)
