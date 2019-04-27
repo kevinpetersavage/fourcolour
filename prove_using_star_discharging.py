@@ -20,7 +20,7 @@ def generate_proof_randomly():
         print('maximum degree was', maximum_part_degree)
         count_avoidable, count_reduced = check_rules_prove_theorem(rules, maximum_part_degree)
         if maximum_part_degree > 20 or count_avoidable + count_reduced < last_counted_avoidable + last_counted_reduced:
-            rules = rules[:int(len(rules)/4)]
+            rules = rules[:int(len(rules)/5)]
 
         last_counted_avoidable = max(count_avoidable, last_counted_avoidable)
         last_counted_reduced = max(count_reduced, last_counted_reduced)
@@ -81,7 +81,7 @@ def check_part_reduces(part):
     nodes = [v for v in part.nodes() if v in list(range(1, part.degree(0) + 1))]
     sum_of_ring_size = sum(sum(gamma(v) - part.degree(v) - 1 for v in nodes) for gamma in gammas)
     print('sum of ring size **********', sum_of_ring_size)
-    if sum_of_ring_size > 13:
+    if sum_of_ring_size > 15:
         return False
 
     result = all(Configuration(part, list(range(1, part.degree(0) + 1)), gamma).is_reducible() for gamma in gammas)

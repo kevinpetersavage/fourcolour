@@ -58,7 +58,7 @@ class Configuration:
 
     def create_ring_colourings(self):
         ring_size = self.ring_size()
-        colourings = [[c] for c in colours]
+        colourings = [[colours[-1]]]
         new_colourings = []
         for i in range(0, ring_size - 1):
             for colouring in colourings:
@@ -69,6 +69,7 @@ class Configuration:
                         new_colourings.append(new_colouring)
             colourings = new_colourings
             new_colourings = []
+            print("completed colouring generation up to size {} with {} colourings".format(i, len(colourings)))
         return [c for c in colourings if self.is_valid_as_ring_colouring(c)]
 
     def create_graph_colourings(self):
