@@ -1,10 +1,11 @@
 import networkx as nx
-from nose.tools import assert_equals, assert_true, assert_false
+from nose.tools import assert_equals, assert_true
+
 from basic_reducable_prover import Configuration
 
 gk = nx.Graph()
-gk.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 1), (1, 3)])
-edge_of_inifinte_region = [1, 2, 3, 4]
+gk.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])
+edge_of_inifinte_region = [0, 1, 2, 3]
 
 
 def gamma(node):
@@ -21,13 +22,13 @@ def test_birkhoff_diamond_has_ring_size_6():
 def test_birkhoff_diamond_generates_ring():
     assert_equals(
         set(diamond.create_ring().edges()),
-        {(5, 10), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10)}
+        {(4, 9), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)}
     )
 
 
 def test_birkhoff_diamond_generates_free_completion():
     completion = diamond.create_free_completion()
-    assert_equals(set(completion.nodes()), set(range(1, 11)))
+    assert_equals(set(completion.nodes()), set(range(0, 10)))
 
     for node in diamond.graph.nodes():
         assert_equals(completion.degree[node], diamond.gamma(node))

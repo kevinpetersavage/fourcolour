@@ -79,7 +79,7 @@ class Configuration:
     @staticmethod
     def colouring_is_valid(colouring, graph):
         for i, colour in enumerate(colouring):
-            for neighbor in graph.neighbors(i + 1):
+            for neighbor in graph.neighbors(i):
                 if colouring[neighbor - 1] == colour:
                     return False
         return True
