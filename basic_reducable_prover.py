@@ -60,7 +60,7 @@ class Configuration:
         ring_size = self.ring_size()
         colourings = [[c] for c in colours]
         new_colourings = []
-        for i in range(0, ring_size):
+        for i in range(0, ring_size - 1):
             for colouring in colourings:
                 for colour in colours:
                     if colour != colouring[-1]:
