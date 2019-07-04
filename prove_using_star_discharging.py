@@ -11,13 +11,12 @@ def generate_proof_randomly():
 
     while True:
         print('not proved with', len(rules), 'rules')
-        print('last_counted is', last_counted_avoidable, last_counted_reduced)
         if len(rules) == 0:
             rules = [generate_random_triangular_rule(9) for i in range(0, 10)]
         else:
             rules.append(generate_random_triangular_rule(9))
+        print('going to try with', len(rules), 'rules')
         maximum_part_degree = find_maximum_part_degree(rules)
-        print('maximum degree was', maximum_part_degree)
         count_avoidable, count_reduced = check_rules_prove_theorem(rules, maximum_part_degree)
         if maximum_part_degree > 20 or count_avoidable + count_reduced < last_counted_avoidable + last_counted_reduced:
             rules = rules[:int(len(rules)/5)]
@@ -27,16 +26,18 @@ def generate_proof_randomly():
 
 
 def check_rules_prove_theorem(rules, maximum_part_degree):
-    parts_to_check = generate_parts_to_check(maximum_part_degree, rules)
+    parts_to_check = generator_dedupe(generate_parts_to_check(maximum_part_degree, rules))
     count_reduced = 0
     count_avoidable = 0
     for part in parts_to_check:
+        print("checking part", list(n[1] for n in part.nodes(data=interval)))
         if np_w(part, rules) > 0:
             if not check_part_reduces(part):
                 return count_avoidable, count_reduced
             count_reduced += 1
         else:
             count_avoidable += 1
+        print("avoided:", count_avoidable, "reduced:", count_reduced)
 
     print('proved with', rules)
     exit(0)
@@ -60,6 +61,15 @@ def generate_parts_to_check_from(part, rules):
         yield part
 
 
+def generator_dedupe(part_generator):
+    cache = set()
+    for part in part_generator:
+        cachable = tuple(n[1] for n in part.nodes(data=interval))
+        if cachable not in cache:
+            cache.add(cachable)
+            yield part
+
+
 def create_gammas(part):
     for degree_list in product(*(interval_to_list(part.node[node_index][interval]) for node_index in sorted(part.node))):
         yield lambda x: degree_list[x]
@@ -76,12 +86,11 @@ def check_part_reduces(part):
 
     # one part may describe many Configuration because of multiple gammas
     gammas = list(create_gammas(part))
-    print('checking part reduces with', len(gammas), 'gammas')
 
     nodes = [v for v in part.nodes() if v in list(range(1, part.degree(0) + 1))]
     sum_of_ring_size = sum(sum(gamma(v) - part.degree(v) - 1 for v in nodes) for gamma in gammas)
-    print('sum of ring size **********', sum_of_ring_size)
     if sum_of_ring_size > 15:
+        print('did not attempt reduction because of ring size', sum_of_ring_size)
         return False
 
     result = all(Configuration(part, list(range(1, part.degree(0) + 1)), gamma).is_reducible() for gamma in gammas)

@@ -92,8 +92,7 @@ def calculate_gamma_change(part: nx.Graph, rule: nx.Graph):
 
 
 def np_w(part: nx.Graph, rules: [nx.Graph]):
-    np_w = 10 * (6 - part.degree(0)) + sum(rule_np_w_contribution(part, rule) for rule in rules)
-    return np_w
+    return 10 * (6 - part.degree(0)) + sum(rule_np_w_contribution(part, rule) for rule in rules)
 
 
 def branch(part, rule):

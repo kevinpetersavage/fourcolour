@@ -13,16 +13,12 @@ class Configuration:
         self.edge_of_infinite_region = edge_of_infinite_region
         self.gamma = gamma
         self.free_completion = self.create_free_completion()
-        print("contructed free completion")
         self.ring_colourings = list(self.create_ring_colourings())
-        print("contructed ring colourings of size", len(self.ring_colourings))
         self.graph_colourings = list(self.create_graph_colourings())
-        print("contructed graph colourings", len(self.graph_colourings))
 
     def ring_size(self):
         nodes = [v for v in self.graph.nodes() if v in self.edge_of_infinite_region]
         ring_size = sum(self.gamma(v) - self.graph.degree(v) - 1 for v in nodes)
-        print("ring size was", ring_size)
         return ring_size
 
     def create_ring(self):
@@ -80,7 +76,7 @@ class Configuration:
     def colouring_is_valid(colouring, graph):
         for i, colour in enumerate(colouring):
             for neighbor in graph.neighbors(i):
-                if colouring[neighbor - 1] == colour:
+                if colouring[neighbor] == colour:
                     return False
         return True
 
